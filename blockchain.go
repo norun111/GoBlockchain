@@ -7,10 +7,30 @@ import (
 )
 
 type Block struct {
-	nonce int
+	nonce        int
 	previousHash string
-	timestamp int64
+	timestamp    int64
 	transactions []string
+}
+
+type Blockchain struct {
+	transactionPool []string
+	chain []*Block
+}
+
+func NewBlockchain() *Blockchain {
+	bc := new(Blockchain)
+	bc.CreateBlock(0, "Init hash")
+	return bc
+	//bc.transactionPool = transactionPool
+	//bc.chain = chain
+	//return bc
+}
+
+func (bc *Blockchain) CreateBlock(nonce int, previousHash string) *Block {
+	b := NewBlock(nonce, previousHash)
+	bc.chain = append(bc.chain, b)
+	return b
 }
 
 func NewBlock(nonce int, previousHash string) *Block {
@@ -33,6 +53,6 @@ func init() {
 }
 
 func main() {
-	b := NewBlock(0, "init hash")
-	fmt.Println(b)
+	blockchain := NewBlockchain()
+	fmt.Println(blockchain)
 }
