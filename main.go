@@ -1,5 +1,12 @@
 package main
 
-func main() {
+import (
+	"fmt"
+	"goblockchain/wallet"
+)
 
+func main() {
+	w := wallet.NewWallet()
+	fmt.Println(w.PrivateKeyStr())
+	fmt.Println(w.PublicKeyStr())
 }
