@@ -169,16 +169,15 @@ func (t *Transaction) MarshalJSON() ([]byte, error) {
 }
 
 func main() {
-	blockchain := NewBlockchain()
+	myBlockChainAddress := "my_blockchain_address"
+	blockchain := NewBlockchain(myBlockChainAddress)
 	blockchain.Print()
 	blockchain.AddTransaction("A", "B", 1.0)
-	previousHash := blockchain.LastBlock().Hash()
-	nonce := blockchain.ProofOfWork()
-	blockchain.CreateBlock(nonce, previousHash)
+	blockchain.Mining()
 	blockchain.Print()
 
-	previousHash = blockchain.LastBlock().Hash()
-	nonce = blockchain.ProofOfWork()
-	blockchain.CreateBlock(nonce, previousHash)
+	blockchain.AddTransaction("C", "D", 2.0)
+	blockchain.AddTransaction("X", "Y", 3.0)
+	blockchain.Mining()
 	blockchain.Print()
 }
