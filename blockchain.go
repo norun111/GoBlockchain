@@ -10,13 +10,13 @@ import (
 
 type Block struct {
 	nonce        int
-	previousHash string
+	previousHash [32]byte
 	timestamp    int64
 	transactions []string
 }
 
 //構造体Blockに値を代入して新しい構造体を初期化
-func NewBlock(nonce int, previousHash string) *Block {
+func NewBlock(nonce int, previousHash [32]byte) *Block {
 	b := new(Block)
 	b.timestamp = time.Now().UnixNano()
 	b.nonce = nonce
@@ -27,7 +27,7 @@ func NewBlock(nonce int, previousHash string) *Block {
 func (b *Block) Print() {
 	fmt.Printf("timestamp       %d\n", b.timestamp)
 	fmt.Printf("nonce       %d\n", b.nonce)
-	fmt.Printf("previousHash       %s\n", b.previousHash)
+	fmt.Printf("previousHash       %x\n", b.previousHash)
 	fmt.Printf("transactions       %s\n", b.transactions)
 }
 
@@ -42,7 +42,7 @@ func (b *Block) MarshalJson() ([]byte, error) {
 	return json.Marshal(struct {
 		Timestamp    int64    `json:"timestamp"`
 		Nonce        int      `json:"nonce"`
-		PreviousHash string   `json:"previous_hash"`
+		PreviousHash [32]byte   `json:"previous_hash"`
 		Transaction  []string `json:"transaction"`
 	}{
 		Timestamp:    b.timestamp,
@@ -58,16 +58,21 @@ type Blockchain struct {
 }
 
 func NewBlockchain() *Blockchain {
+	b := &Block{}
 	bc := new(Blockchain)
-	bc.CreateBlock(0, "Init hash")
+	bc.CreateBlock(0, b.Hash())
 	return bc
 }
 
 //構造体Blockchainのスライス型のchainにNewBlockメソッドで初期化した構造体を追加している
-func (bc *Blockchain) CreateBlock(nonce int, previousHash string) *Block {
+func (bc *Blockchain) CreateBlock(nonce int, previousHash [32]byte) *Block {
 	b := NewBlock(nonce, previousHash)
 	bc.chain = append(bc.chain, b)
 	return b
+}
+
+func (bc *Blockchain) LastBlock() *Block {
+	return bc.chain[len(bc.chain)-1]
 }
 
 func (bc *Blockchain) Print() {
@@ -79,15 +84,14 @@ func (bc *Blockchain) Print() {
 }
 
 func main() {
-	//blockchain := NewBlockchain()
-	//blockchain.Print()
-	//blockchain.CreateBlock(5, "hash 1")
-	//blockchain.Print()
-	//blockchain.CreateBlock(2, "hash 2")
-	//blockchain.Print()
+	blockchain := NewBlockchain()
+	blockchain.Print()
 
-	block := &Block{
-		nonce: 1,
-	}
-	fmt.Printf("%x\n", block.Hash())
+	previousHash := blockchain.LastBlock().Hash()
+	blockchain.CreateBlock(5, previousHash)
+	blockchain.Print()
+
+	previousHash = blockchain.LastBlock().Hash()
+	blockchain.CreateBlock(2, previousHash)
+	blockchain.Print()
 }
