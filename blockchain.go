@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/sha256"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -27,6 +29,27 @@ func (b *Block) Print() {
 	fmt.Printf("nonce       %d\n", b.nonce)
 	fmt.Printf("previousHash       %s\n", b.previousHash)
 	fmt.Printf("transactions       %s\n", b.transactions)
+}
+
+//func Sum256 const Size = 32
+func (b *Block) Hash() [32]byte {
+	m, _ := json.Marshal(b)
+	fmt.Println(string(m))
+	return sha256.Sum256([]byte(m))
+}
+
+func (b *Block) MarshalJson() ([]byte, error) {
+	return json.Marshal(struct {
+		Timestamp    int64    `json:"timestamp"`
+		Nonce        int      `json:"nonce"`
+		PreviousHash string   `json:"previous_hash"`
+		Transaction  []string `json:"transaction"`
+	}{
+		Timestamp:    b.timestamp,
+		Nonce:        b.nonce,
+		PreviousHash: b.previousHash,
+		Transaction:  b.transactions,
+	})
 }
 
 type Blockchain struct {
@@ -56,10 +79,15 @@ func (bc *Blockchain) Print() {
 }
 
 func main() {
-	blockchain := NewBlockchain()
-	blockchain.Print()
-	blockchain.CreateBlock(5, "hash 1")
-	blockchain.Print()
-	blockchain.CreateBlock(2, "hash 2")
-	blockchain.Print()
+	//blockchain := NewBlockchain()
+	//blockchain.Print()
+	//blockchain.CreateBlock(5, "hash 1")
+	//blockchain.Print()
+	//blockchain.CreateBlock(2, "hash 2")
+	//blockchain.Print()
+
+	block := &Block{
+		nonce: 1,
+	}
+	fmt.Printf("%x\n", block.Hash())
 }
