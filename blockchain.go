@@ -108,6 +108,7 @@ func (bc *Blockchain) ValidProof(nonce int, previousHash [32]byte, transactions 
 	zeros := strings.Repeat("0", difficulty)
 	guessBlock := Block{0, nonce, previousHash, transactions}
 	guessHashStr := fmt.Sprintf("%x", guessBlock.Hash())
+	fmt.Println(guessHashStr)
 	//0001234 difficultyが3の場合
 	return guessHashStr[:difficulty] == zeros
 }
@@ -156,10 +157,12 @@ func main() {
 	blockchain.Print()
 	blockchain.AddTransaction("A", "B", 1.0)
 	previousHash := blockchain.LastBlock().Hash()
-	blockchain.CreateBlock(5, previousHash)
+	nonce := blockchain.ProofOfWork()
+	blockchain.CreateBlock(nonce, previousHash)
 	blockchain.Print()
 
 	previousHash = blockchain.LastBlock().Hash()
-	blockchain.CreateBlock(2, previousHash)
+	nonce = blockchain.ProofOfWork()
+	blockchain.CreateBlock(nonce, previousHash)
 	blockchain.Print()
 }
