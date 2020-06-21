@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"strings"
 	"time"
 )
@@ -12,24 +11,6 @@ type Block struct {
 	previousHash string
 	timestamp    int64
 	transactions []string
-}
-
-type Blockchain struct {
-	transactionPool []string
-	chain []*Block
-}
-
-func NewBlockchain() *Blockchain {
-	bc := new(Blockchain)
-	bc.CreateBlock(0, "Init hash")
-	return bc
-}
-
-//構造体Blockchainのスライス型のchainにNewBlockメソッドで初期化した構造体を追加している
-func (bc *Blockchain) CreateBlock(nonce int, previousHash string) *Block {
-	b := NewBlock(nonce, previousHash)
-	bc.chain = append(bc.chain, b)
-	return b
 }
 
 //構造体Blockに値を代入して新しい構造体を初期化
@@ -48,8 +29,22 @@ func (b *Block) Print() {
 	fmt.Printf("transactions       %s\n", b.transactions)
 }
 
-func init() {
-	log.SetPrefix("Blockchain:")
+type Blockchain struct {
+	transactionPool []string
+	chain           []*Block
+}
+
+func NewBlockchain() *Blockchain {
+	bc := new(Blockchain)
+	bc.CreateBlock(0, "Init hash")
+	return bc
+}
+
+//構造体Blockchainのスライス型のchainにNewBlockメソッドで初期化した構造体を追加している
+func (bc *Blockchain) CreateBlock(nonce int, previousHash string) *Block {
+	b := NewBlock(nonce, previousHash)
+	bc.chain = append(bc.chain, b)
+	return b
 }
 
 func (bc *Blockchain) Print() {
