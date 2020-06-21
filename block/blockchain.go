@@ -1,4 +1,4 @@
-package main
+package block
 
 import (
 	"crypto/sha256"
@@ -128,6 +128,24 @@ func (bc *Blockchain) Mining() bool {
 	return true
 }
 
+func (bc *Blockchain) CalculateTotalAmount(blockchainAddress string) float32 {
+	var totalAmount float32 = 0.0
+	for _, b := range bc.chain {
+		for _, t := range b.transactions {
+			value := t.value
+			//例えばBさんがCさんに送金した時はCさんのtotalAmountが増加
+			if blockchainAddress == t.recipientBlockchainAddress {
+				totalAmount += value
+			}
+			//Cさんが送金者側ならvalue分減少する
+			if blockchainAddress == t.senderBlockchainAddress {
+				totalAmount -= value
+			}
+		}
+	}
+	return totalAmount
+}
+
 func (bc *Blockchain) ProofOfWork() int {
 	transactions := bc.CopyTransactionPool()
 	previousHash := bc.LastBlock().Hash()
@@ -165,18 +183,4 @@ func (t *Transaction) MarshalJSON() ([]byte, error) {
 		Recipient: t.recipientBlockchainAddress,
 		Value:     t.value,
 	})
-}
-
-func main() {
-	myBlockChainAddress := "my_blockchain_address"
-	blockchain := NewBlockchain(myBlockChainAddress)
-	blockchain.Print()
-	blockchain.AddTransaction("A", "B", 1.0)
-	blockchain.Mining()
-	blockchain.Print()
-
-	blockchain.AddTransaction("C", "D", 2.0)
-	blockchain.AddTransaction("X", "Y", 3.0)
-	blockchain.Mining()
-	blockchain.Print()
 }
