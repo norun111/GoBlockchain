@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"goblockchain/block"
 	"goblockchain/utils"
 	"goblockchain/wallet"
 	"html/template"
@@ -84,14 +85,19 @@ func (ws *WalletServer) CreateTransaction(w http.ResponseWriter, req *http.Reque
 		value32 := float32(value)
 
 		w.Header().Add("Content-Type","application/json")
-		fmt.Println(publicKey)
-		fmt.Println(privateKey)
-		fmt.Printf("%.1f", value32)
-		//fmt.Println(len(*t.SenderPrivateKey))
-		//fmt.Println(len(*t.SenderPublicKey))
-		//fmt.Println(*t.SenderBlockchainAddress)
-		//fmt.Println(*t.RecipientBlockchainAddress)
-		//fmt.Println(*t.Value)
+
+		transaction := wallet.NewTransaction(privateKey, publicKey, *t.SenderBlockchainAddress, *t.RecipientBlockchainAddress, value32)
+		signature :=  transaction.GenerateSignature()
+		signatureStr := signature.String()
+
+		bt := &block.TransactionRequest{
+			t.SenderBlockchainAddress,
+			t.RecipientBlockchainAddress,
+			t.SenderPublicKey,
+			&value32, &signatureStr,
+		}
+		m, _ := json.Marshal(bt)
+
 	default:
 		w.WriteHeader(http.StatusBadRequest)
 		log.Println("ERROR: Invalid HTTP Method")
