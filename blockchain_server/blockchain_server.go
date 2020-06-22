@@ -50,7 +50,7 @@ func (bcs *BlockchainServer) GetChain(w http.ResponseWriter, req *http.Request) 
 
 func (bcs *BlockchainServer) Run() {
 	server := http.Server{
-		Addr: "0.0.0.0:"+strconv.Itoa(int(bcs.port)),
+		Addr: "0.0.0.0:" + strconv.Itoa(int(bcs.port)),
 	}
 	http.HandleFunc("/", bcs.GetChain)
 	server.ListenAndServe()
