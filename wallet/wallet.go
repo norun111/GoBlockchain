@@ -8,8 +8,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/btcsuite/btcutil/base58"
-	"golang.org/x/crypto/ripemd160"
 	"goblockchain/utils"
+	"golang.org/x/crypto/ripemd160"
 )
 
 type Wallet struct {
