@@ -36,11 +36,10 @@ func FindNeighbors(myHost string, myPort uint16, startIp uint8, endIp uint8, sta
 	neighbors := make([]string, 0)
 
 	//startPort = 5000, endPort = 5002,
-	for port := startPort; port <= endPort; port ++ {
-
+	for port := startPort; port <= endPort; port += 1 {
 		//startIp = 0, endIp = 11, 12, 13
-		for ip := startIp; ip <= endIp; ip ++ {
-			guessHost := fmt.Sprintf("%s%d", prefixHost, lastIp + int(ip))
+		for ip := startIp; ip <= endIp; ip += 1 {
+			guessHost := fmt.Sprintf("%s%d", prefixHost, lastIp+int(ip))
 			guessTarget := fmt.Sprintf("%s:%d", guessHost, port)
 			//アドレスが自分自身のものでない時かつもし発見したらneighborsに追加
 			if guessTarget != address && IsFoundHost(guessHost, port) {
@@ -61,7 +60,6 @@ func GetHost() string {
 	if err != nil {
 		return "127.0.0.1"
 	}
-
 	return address[0]
 }
 
