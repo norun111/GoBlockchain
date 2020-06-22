@@ -1,8 +1,8 @@
 package utils
 
 import (
-	"math/big"
 	"fmt"
+	"math/big"
 )
 
 type Signature struct {
