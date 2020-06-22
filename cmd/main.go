@@ -1,8 +1,8 @@
 package main
 
 import (
-	"goblockchain/utils"
 	"fmt"
+	"goblockchain/utils"
 )
 
 func main() {
