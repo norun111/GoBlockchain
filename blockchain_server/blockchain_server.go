@@ -156,6 +156,8 @@ func (bcs *BlockchainServer) Amount(w http.ResponseWriter, req *http.Request) {
 }
 
 func (bcs *BlockchainServer) Run() {
+	bcs.GetBlockchain().Run()
+
 	server := http.Server{
 		Addr: "0.0.0.0:" + strconv.Itoa(int(bcs.port)),
 	}
