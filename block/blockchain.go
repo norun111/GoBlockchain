@@ -8,8 +8,8 @@ import (
 	"goblockchain/utils"
 	"log"
 	"strings"
-	"time"
 	"sync"
+	"time"
 )
 
 const (
