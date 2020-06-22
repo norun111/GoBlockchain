@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"goblockchain/block"
+	"goblockchain/utils"
 	"goblockchain/wallet"
 	"io"
 	"log"
@@ -45,6 +47,33 @@ func (bcs *BlockchainServer) GetChain(w http.ResponseWriter, req *http.Request) 
 		io.WriteString(w, string(m[:]))
 	default:
 		log.Println("ERROR: Invalid HTTP Method")
+	}
+}
+
+func (bcs *BlockchainServer) Transaction(w http.ResponseWriter, req *http.Request) {
+	switch req.Method {
+	case http.MethodGet:
+	//TODO
+	case http.MethodPost:
+		decoder := json.NewDecoder(req.Body)
+		var t block.TransactionRequest
+		err := decoder.Decode(&t)
+		if err != nil {
+			log.Printf("ERROR:%v", err)
+			io.WriteString(w, string(utils.JsonStatus("fail")))
+			return
+		}
+		if !t.Validate() {
+			log.Println("ERROR missing fields(s)")
+			io.WriteString(w, string(utils.JsonStatus("fail")))
+			return
+		}
+		publicKey := utils.PublicKeyFromString(*t.SenderPublicKey)
+		signature := utils.SignatureFromString(*t.Signature)
+
+	default:
+		log.Println(":ERROR: Invalid HTTP Method")
+		w.WriteHeader(http.StatusBadRequest)
 	}
 }
 
