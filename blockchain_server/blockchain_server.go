@@ -50,9 +50,20 @@ func (bcs *BlockchainServer) GetChain(w http.ResponseWriter, req *http.Request) 
 	}
 }
 
-func (bcs *BlockchainServer) Transaction(w http.ResponseWriter, req *http.Request) {
+func (bcs *BlockchainServer) Transactions(w http.ResponseWriter, req *http.Request) {
 	switch req.Method {
 	case http.MethodGet:
+		w.Header().Add("Content-Type", "application/json")
+		bc := bcs.GetBlockchain()
+		transactions := bc.TransactionPool()
+		m, _ := json.Marshal(struct{
+			Transactions []*block.Transaction `json:"transactions"`
+			Length int `json:"length"`
+		}{
+			Transactions: transactions,
+			Length: len(transactions),
+		})
+		io.WriteString(w, string(m))
 	//TODO
 	case http.MethodPost:
 		decoder := json.NewDecoder(req.Body)
@@ -96,5 +107,6 @@ func (bcs *BlockchainServer) Run() {
 		Addr: "0.0.0.0:" + strconv.Itoa(int(bcs.port)),
 	}
 	http.HandleFunc("/", bcs.GetChain)
+	http.HandleFunc("/transactions", bcs.Transactions)
 	server.ListenAndServe()
 }
