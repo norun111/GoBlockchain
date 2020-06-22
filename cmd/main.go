@@ -1,10 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"goblockchain/utils"
+	"fmt"
 )
 
 func main() {
-	fmt.Println(utils.IsFoundHost("127.0.0.1", 5000))
+	fmt.Println(utils.GetHost())
 }
