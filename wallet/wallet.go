@@ -8,8 +8,9 @@ import (
 )
 
 type Wallet struct {
-	privateKey *ecdsa.PrivateKey
-	publicKey *ecdsa.PublicKey
+	privateKey        *ecdsa.PrivateKey
+	publicKey         *ecdsa.PublicKey
+	blockchainAddress string
 }
 
 func NewWallet() *Wallet {
