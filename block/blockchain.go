@@ -18,11 +18,11 @@ const (
 	MINING_REWARD     = 1.0
 	MINING_TIMER_SEC  = 20
 
-	BLOCKCHAIN_PORT_RANGE_START       = 5000
-	BLOCKCHAIN_PORT_RANGE_END         = 5003
-	NEIGHBOR_IP_RANGE_START           = 0
-	NEIGHBOR_IP_RANGE_END             = 1
-	BLOCKCHAIN_NEIGHBOR_SYNC_TIME_SEC = 20
+	BLOCKCHAIN_PORT_RANGE_START      = 5000
+	BLOCKCHAIN_PORT_RANGE_END        = 5003
+	NEIGHBOR_IP_RANGE_START          = 0
+	NEIGHBOR_IP_RANGE_END            = 1
+	BLOCKCHIN_NEIGHBOR_SYNC_TIME_SEC = 20
 )
 
 type Block struct {
@@ -92,12 +92,27 @@ func NewBlockchain(blockchainAddress string, port uint16) *Blockchain {
 	return bc
 }
 
+func (bc *Blockchain) Run() {
+	bc.StartSyncNeighbors()
+}
+
 func (bc *Blockchain) SetNeighbors() {
 	bc.neighbors = utils.FindNeighbors(
 		utils.GetHost(), bc.port,
 		NEIGHBOR_IP_RANGE_START, NEIGHBOR_IP_RANGE_END,
 		BLOCKCHAIN_PORT_RANGE_START, BLOCKCHAIN_PORT_RANGE_END)
 	log.Printf("%v", bc.neighbors)
+}
+
+func (bc *Blockchain) SyncNeighbors() {
+	bc.muxNeighbors.Lock()
+	defer bc.muxNeighbors.Unlock()
+	bc.SetNeighbors()
+}
+
+func (bc *Blockchain) StartSyncNeighbors() {
+	bc.SyncNeighbors()
+	_ = time.AfterFunc(time.Second * BLOCKCHIN_NEIGHBOR_SYNC_TIME_SEC, bc.StartSyncNeighbors)
 }
 
 func (bc *Blockchain) TransactionPool() []*Transaction {
@@ -273,11 +288,7 @@ type TransactionRequest struct {
 }
 
 func (tr *TransactionRequest) Validate() bool {
-	if tr.SenderBlockchainAddress == nil ||
-		tr.RecipientBlockChainAddress == nil ||
-		tr.SenderBlockchainAddress == nil ||
-		tr.Value == nil ||
-		tr.Signature == nil {
+	if tr.RecipientBlockChainAddress == nil || tr.SenderBlockchainAddress == nil || tr.Value == nil || tr.Signature == nil {
 		return false
 	}
 	return true
