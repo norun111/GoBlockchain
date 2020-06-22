@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/ecdsa"
 	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"goblockchain/utils"
@@ -43,6 +44,18 @@ func NewBlock(nonce int, previousHash [32]byte, transactions []*Transaction) *Bl
 	return b
 }
 
+func (b *Block) PreviousHash() [32]byte {
+	return b.previousHash
+}
+
+func (b *Block) Nonce() int {
+	return b.nonce
+}
+
+func (b *Block) Transactions() []*Transaction {
+	return b.transactions
+}
+
 func (b *Block) Print() {
 	fmt.Printf("timestamp       %d\n", b.timestamp)
 	fmt.Printf("nonce           %d\n", b.nonce)
@@ -69,6 +82,28 @@ func (b *Block) MarshalJSON() ([]byte, error) {
 		PreviousHash: fmt.Sprintf("%x", b.previousHash),
 		Transactions: b.transactions,
 	})
+}
+
+func (b *Block) UnmarshalJSON(data []byte) error {
+	var previousHash string
+	v := &struct{
+		Timestamp *int64 `json:"timestamp"`
+		Nonce *int `json:"nonce"`
+		PreviousHash *string `json:"previous_hash"`
+		Transaction *[]*Transaction `json:"transaction"`
+	}{
+		Timestamp: &b.timestamp,
+		Nonce: &b.nonce,
+		PreviousHash: &previousHash,
+		Transaction: &b.transactions,
+	}
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	//バイトに戻す
+	ph, _ := hex.DecodeString(*v.PreviousHash)
+	copy(b.previousHash[:], ph[:32])
+	return nil
 }
 
 type Blockchain struct {
@@ -128,6 +163,18 @@ func (bc *Blockchain) MarshalJSON() ([]byte, error) {
 	}{
 		Blocks: bc.chain,
 	})
+}
+
+func (bc *Blockchain) UnmarshalJSON(data []byte) error{
+	v := &struct{
+		Blocks *[]*Block `json:"chain"`
+	}{
+		Blocks:  &bc.chain,
+	}
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (bc *Blockchain) CreateBlock(nonce int, previousHash [32]byte) *Block {
@@ -279,6 +326,25 @@ func (bc *Blockchain) CalculateTotalAmount(blockchainAddress string) float32 {
 	return totalAmount
 }
 
+func (bc *Blockchain) ValidChain(chain []*Block) bool {
+	preBlock := chain[0]
+	currentIndex := 1
+
+	for currentIndex < len(chain) {
+		b := chain[currentIndex]
+		if b.previousHash != preBlock.Hash() {
+			return false
+		}
+		if !bc.ValidProof(b.Nonce(), b.PreviousHash(), b.Transactions(), MINING_DIFFICULTY) {
+			return false
+		}
+
+		preBlock = b
+		currentIndex++
+	}
+	return true
+}
+
 type Transaction struct {
 	senderBlockchainAddress    string
 	recipientBlockchainAddress string
@@ -306,6 +372,22 @@ func (t *Transaction) MarshalJSON() ([]byte, error) {
 		Recipient: t.recipientBlockchainAddress,
 		Value:     t.value,
 	})
+}
+
+func (t *Transaction) UnmarshalJSON(data []byte) error {
+	v := &struct {
+		Sender *string `json:"sender_blockchain_address"`
+		Recipient *string `json:"recipient_blockchain_address"`
+		Value *float32 `json:"value"`
+	}{
+		Sender: &t.senderBlockchainAddress,
+		Recipient: &t.recipientBlockchainAddress,
+		Value: &t.value,
+	}
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	}
+	return nil
 }
 
 type TransactionRequest struct {
