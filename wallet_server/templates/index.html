@@ -14,6 +14,11 @@
                     $('#private_key').val(response['private_key']);
                     $('#blockchain_address').val(response['blockchain_address']);
                     console.info(response);
+                    if (response.message === 'fail'){
+                        alert("Send fail")
+                    } else {
+                        alert("Send success")
+                    }
                 },
                 error: function(error) {
                     console.error(error);
@@ -72,10 +77,12 @@
                     }
                 })
             }
-
+            /*
             $('#reload_wallet').click(function(){
                 reload_amount();
             });
+            */
+
             //3秒毎にバックエンドにアクセス
             setInterval(reload_amount, 3000)
         })
@@ -87,7 +94,8 @@
 <div>
     <h1>Wallet</h1>
     <div id="wallet_amount">0</div>
-    <button id="reload_wallet">Reload Wallet</button>
+
+{{/*    <button id="reload_wallet">Reload Wallet</button>*/}}
 
     <p>Public  Key</p>
     <textarea id="public_key" rows="2" cols="100"></textarea>
